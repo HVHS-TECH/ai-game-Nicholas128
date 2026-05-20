@@ -1,23 +1,38 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const canvas =
+  document.getElementById("gameCanvas");
+
+const ctx =
+  canvas.getContext("2d");
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+
+  canvas.width =
+    window.innerWidth;
+
+  canvas.height =
+    window.innerHeight;
 }
 
 resizeCanvas();
 
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
 
 const lanes = [0.3, 0.5, 0.7];
 
 function getLaneX(lane) {
+
   return canvas.width * lanes[lane];
 }
 
 const player = {
+
   lane: 1,
+
+  currentX: 0,
+
   y: canvas.height - 120,
 
   width: 60,
@@ -26,30 +41,42 @@ const player = {
   velocityY: 0,
 
   gravity: 0.8,
+
   jumpForce: -18,
 
   grounded: true,
 
   sliding: false,
+
   slideTimer: 0
 };
 
+player.currentX =
+  getLaneX(player.lane);
+
 const obstacles = [];
+
 const coins = [];
 
 let score = 0;
+
 let speed = 4;
+
 let frame = 0;
+
 let gameOver = false;
 
 function spawnObstacle() {
 
   obstacles.push({
-    lane: Math.floor(Math.random() * 3),
+
+    lane:
+      Math.floor(Math.random() * 3),
 
     y: -150,
 
     width: 80,
+
     height: 120
   });
 }
@@ -57,7 +84,9 @@ function spawnObstacle() {
 function spawnCoin() {
 
   coins.push({
-    lane: Math.floor(Math.random() * 3),
+
+    lane:
+      Math.floor(Math.random() * 3),
 
     y: -100,
 
@@ -67,16 +96,28 @@ function spawnCoin() {
 
 function drawBackground() {
 
-  const gradient = ctx.createLinearGradient(
+  const gradient =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      canvas.height
+    );
+
+  gradient.addColorStop(
     0,
-    0,
-    0,
-    canvas.height
+    "#0f172a"
   );
 
-  gradient.addColorStop(0, "#0f172a");
-  gradient.addColorStop(0.5, "#111827");
-  gradient.addColorStop(1, "#020617");
+  gradient.addColorStop(
+    0.5,
+    "#111827"
+  );
+
+  gradient.addColorStop(
+    1,
+    "#020617"
+  );
 
   ctx.fillStyle = gradient;
 
@@ -87,7 +128,7 @@ function drawBackground() {
     canvas.height
   );
 
-  // city buildings
+  // city skyline
   for (let i = 0; i < 40; i++) {
 
     const x =
@@ -108,7 +149,7 @@ function drawBackground() {
     );
   }
 
-  // road glow
+  // glowing road
   ctx.fillStyle =
     "rgba(0,200,255,0.08)";
 
@@ -119,7 +160,7 @@ function drawBackground() {
     canvas.height
   );
 
-  // lane lines
+  // lanes
   for (let i = 0; i < 3; i++) {
 
     ctx.strokeStyle =
@@ -129,7 +170,10 @@ function drawBackground() {
 
     ctx.beginPath();
 
-    ctx.moveTo(getLaneX(i), 0);
+    ctx.moveTo(
+      getLaneX(i),
+      0
+    );
 
     ctx.lineTo(
       getLaneX(i),
@@ -139,7 +183,7 @@ function drawBackground() {
     ctx.stroke();
   }
 
-  // moving floor streaks
+  // moving road streaks
   for (
     let y = 0;
     y < canvas.height;
@@ -164,7 +208,8 @@ function drawBackground() {
 
 function drawPlayer() {
 
-  const x = getLaneX(player.lane);
+  const x =
+    player.currentX;
 
   const height =
     player.sliding
@@ -190,7 +235,8 @@ function drawPlayer() {
   ctx.fill();
 
   // body
-  ctx.fillStyle = "#00e5ff";
+  ctx.fillStyle =
+    "#00e5ff";
 
   ctx.fillRect(
     x - player.width / 2,
@@ -200,7 +246,8 @@ function drawPlayer() {
   );
 
   // hoodie
-  ctx.fillStyle = "#0891b2";
+  ctx.fillStyle =
+    "#0891b2";
 
   ctx.fillRect(
     x - player.width / 2,
@@ -227,7 +274,8 @@ function drawPlayer() {
   );
 
   // shoes
-  ctx.fillStyle = "#f43f5e";
+  ctx.fillStyle =
+    "#f43f5e";
 
   ctx.fillRect(
     x - 25,
@@ -246,93 +294,116 @@ function drawPlayer() {
 
 function drawObstacles() {
 
-  obstacles.forEach((obs, index) => {
+  obstacles.forEach(
+    (obs, index) => {
 
-    obs.y += speed;
+      obs.y += speed;
 
-    ctx.fillStyle = "#ff1744";
+      ctx.fillStyle =
+        "#ff1744";
 
-    ctx.fillRect(
-      getLaneX(obs.lane)
-        - obs.width / 2,
+      ctx.fillRect(
+        getLaneX(obs.lane)
+          - obs.width / 2,
 
-      obs.y,
+        obs.y,
 
-      obs.width,
-      obs.height
-    );
+        obs.width,
+        obs.height
+      );
 
-    if (obs.y > canvas.height) {
-      obstacles.splice(index, 1);
+      if (
+        obs.y > canvas.height
+      ) {
+
+        obstacles.splice(index, 1);
+      }
+
+      const px =
+        player.currentX
+        - player.width / 2;
+
+      const py =
+        player.y
+        - player.height;
+
+      const ox =
+        getLaneX(obs.lane)
+        - obs.width / 2;
+
+      const oy = obs.y;
+
+      if (
+        px < ox + obs.width &&
+        px + player.width > ox &&
+        py < oy + obs.height &&
+        py + player.height > oy
+      ) {
+
+        gameOver = true;
+      }
     }
-
-    const px =
-      getLaneX(player.lane)
-      - player.width / 2;
-
-    const py =
-      player.y - player.height;
-
-    const ox =
-      getLaneX(obs.lane)
-      - obs.width / 2;
-
-    const oy = obs.y;
-
-    if (
-      px < ox + obs.width &&
-      px + player.width > ox &&
-      py < oy + obs.height &&
-      py + player.height > oy
-    ) {
-      gameOver = true;
-    }
-  });
+  );
 }
 
 function drawCoins() {
 
-  coins.forEach((coin, index) => {
+  coins.forEach(
+    (coin, index) => {
 
-    coin.y += speed;
+      coin.y += speed;
 
-    ctx.fillStyle = "gold";
+      ctx.fillStyle =
+        "gold";
 
-    ctx.beginPath();
+      ctx.beginPath();
 
-    ctx.arc(
-      getLaneX(coin.lane),
-      coin.y,
-      coin.radius,
-      0,
-      Math.PI * 2
-    );
+      ctx.arc(
+        getLaneX(coin.lane),
+        coin.y,
+        coin.radius,
+        0,
+        Math.PI * 2
+      );
 
-    ctx.fill();
+      ctx.fill();
 
-    const dx =
-      getLaneX(player.lane)
-      - getLaneX(coin.lane);
+      const dx =
+        player.currentX
+        - getLaneX(coin.lane);
 
-    const dy =
-      player.y - coin.y;
+      const dy =
+        player.y - coin.y;
 
-    if (
-      Math.sqrt(dx * dx + dy * dy)
-      < 50
-    ) {
-      coins.splice(index, 1);
+      if (
+        Math.sqrt(
+          dx * dx + dy * dy
+        ) < 50
+      ) {
 
-      score += 100;
+        coins.splice(index, 1);
+
+        score += 100;
+      }
     }
-  });
+  );
 }
 
 function updatePlayer() {
 
-  player.velocityY += player.gravity;
+  const targetX =
+    getLaneX(player.lane);
 
-  player.y += player.velocityY;
+  // slower lane movement
+  player.currentX +=
+    (targetX - player.currentX)
+    * 0.08;
+
+  player.velocityY +=
+    player.gravity;
+
+  player.y +=
+    player.velocityY;
 
   const ground =
     canvas.height - 120;
@@ -360,7 +431,8 @@ function drawUI() {
 
   ctx.fillStyle = "white";
 
-  ctx.font = "30px Arial";
+  ctx.font =
+    "30px Arial";
 
   ctx.fillText(
     `Score: ${score}`,
@@ -386,9 +458,11 @@ function drawUI() {
       canvas.height
     );
 
-    ctx.fillStyle = "#ff1744";
+    ctx.fillStyle =
+      "#ff1744";
 
-    ctx.font = "80px Arial";
+    ctx.font =
+      "80px Arial";
 
     ctx.fillText(
       "GAME OVER",
@@ -397,7 +471,8 @@ function drawUI() {
     );
 
     // restart button
-    ctx.fillStyle = "#00e5ff";
+    ctx.fillStyle =
+      "#00e5ff";
 
     ctx.fillRect(
       canvas.width / 2 - 120,
@@ -406,9 +481,11 @@ function drawUI() {
       70
     );
 
-    ctx.fillStyle = "black";
+    ctx.fillStyle =
+      "black";
 
-    ctx.font = "40px Arial";
+    ctx.font =
+      "40px Arial";
 
     ctx.fillText(
       "RESTART",
@@ -421,15 +498,21 @@ function drawUI() {
 function restartGame() {
 
   obstacles.length = 0;
+
   coins.length = 0;
 
   score = 0;
+
   speed = 4;
+
   frame = 0;
 
   gameOver = false;
 
   player.lane = 1;
+
+  player.currentX =
+    getLaneX(1);
 
   player.velocityY = 0;
 
@@ -457,6 +540,7 @@ document.addEventListener(
         e.clientY >= btnY &&
         e.clientY <= btnY + 70
       ) {
+
         restartGame();
       }
     }
@@ -467,39 +551,57 @@ document.addEventListener(
   "keydown",
   (e) => {
 
-    switch (e.key.toLowerCase()) {
+    switch (
+      e.key.toLowerCase()
+    ) {
 
       case "a":
       case "arrowleft":
+
         moveLeft();
+
         break;
 
       case "d":
       case "arrowright":
+
         moveRight();
+
         break;
 
       case "w":
       case "arrowup":
+
         jump();
+
         break;
 
       case "s":
       case "arrowdown":
+
         slide();
+
         break;
     }
   }
 );
 
 function moveLeft() {
+
   player.lane =
-    Math.max(0, player.lane - 1);
+    Math.max(
+      0,
+      player.lane - 1
+    );
 }
 
 function moveRight() {
+
   player.lane =
-    Math.min(2, player.lane + 1);
+    Math.min(
+      2,
+      player.lane + 1
+    );
 }
 
 function jump() {
@@ -536,10 +638,12 @@ function gameLoop() {
     frame++;
 
     if (frame % 80 === 0) {
+
       spawnObstacle();
     }
 
     if (frame % 120 === 0) {
+
       spawnCoin();
     }
 
@@ -548,6 +652,7 @@ function gameLoop() {
       frame % 300 === 0 &&
       speed < 35
     ) {
+
       speed += 1;
     }
 
@@ -564,7 +669,9 @@ function gameLoop() {
 
   drawUI();
 
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(
+    gameLoop
+  );
 }
 
 gameLoop();
