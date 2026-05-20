@@ -604,7 +604,7 @@ function moveRight() {
     );
 }
 
-function jump() {
+function jump() { 
 
   if (player.grounded) {
 
