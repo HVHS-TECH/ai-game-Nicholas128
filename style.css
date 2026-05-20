@@ -6,15 +6,14 @@
 
 body {
   overflow: hidden;
-  background: black;
   font-family: Arial, sans-serif;
+  background: black;
 }
 
-canvas { 
+canvas {
   display: block;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(#081229, #1a1a1a);
 }
 
 #mobile-controls {
@@ -24,6 +23,7 @@ canvas {
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
+  z-index: 10;
 }
 
 #mobile-controls button {
@@ -31,7 +31,22 @@ canvas {
   height: 70px;
   border-radius: 20px;
   border: none;
-  background: rgba(255,255,255,0.2);
+
+  background: rgba(255,255,255,0.15);
+
   color: white;
-  font-size: 28px;
+  font-size: 30px;
+
+  backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 0 20px rgba(0,255,255,0.3);
+
+  transition: 0.2s;
+}
+
+#mobile-controls button:hover {
+  transform: scale(1.1);
+
+  background: rgba(0,255,255,0.3);
 }
